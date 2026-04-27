@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Dashboard - ERP Portal</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="C9_logo.png">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html">
+            <img src="C9_logo.png" alt="C9 Logo" style="height: 30px; margin-right: 10px;">
+            C9 ERP Portal
+        </a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a class="nav-link" href="finance.html">Finance</a></li>
+                <li class="nav-item active"><a class="nav-link" href="sales.html">Sales</a></li>
+                <li class="nav-item"><a class="nav-link" href="crm.html">CRM</a></li>
+                <li class="nav-item"><a class="nav-link" href="production.html">Production</a></li>
+                <li class="nav-item"><a class="nav-link" href="supply_chain.html">Supply Chain</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="center-container">
+        <div class="container text-center">
+            <h1 class="mb-5 display-4 font-weight-bold">Sales Analytics</h1>
+            <div class="row justify-content-center">
+                <!-- Monthly Merch Sales -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Monthly Merch Revenue</h5>
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sales by Region -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Sales by Region</h5>
+                            <canvas id="regionPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Channel and Top Products Stack -->
+                <div class="col-md-6 mb-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Channel Performance (Revenue)</h5>
+                            <canvas id="channelChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Top Products (Units Sold)</h5>
+                            <canvas id="productsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Quarterly Sales Targets -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Quarterly Sales: Target vs Actual</h5>
+                            <canvas id="targetChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script>
+        // Global Chart Defaults for Dark Theme
+        Chart.defaults.color = '#adb5bd';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+
+        var ctxSales = document.getElementById('salesChart').getContext('2d');
+        var salesChart = new Chart(ctxSales, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Total Revenue',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        var ctxRegion = document.getElementById('regionPieChart').getContext('2d');
+        var regionPieChart = new Chart(ctxRegion, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2
+            }
+        });
+
+        var ctxChannel = document.getElementById('channelChart').getContext('2d');
+        var channelChart = new Chart(ctxChannel, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [],
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        var ctxProducts = document.getElementById('productsChart').getContext('2d');
+        var productsChart = new Chart(ctxProducts, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Units Sold',
+                    data: [],
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        var ctxTarget = document.getElementById('targetChart').getContext('2d');
+        var targetChart = new Chart(ctxTarget, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Target',
+                    data: [],
+                    backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Actual',
+                    data: [],
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: 2,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        function fetchDataAndUpdateChart() {
+            Papa.parse('erp_csv_data/sales_monthlyMerchSales.csv', {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    var filteredData = results.data.filter(row => row.month);
+                    var labels = filteredData.map(row => row.month);
+                    var data = filteredData.map(row => Number(row.totalRevenue));
+
+                    salesChart.data.labels = labels;
+                    salesChart.data.datasets[0].data = data;
+                    salesChart.update();
+                },
+                error: function (error) {
+                    console.error('Error fetching or parsing data:', error);
+                }
+            });
+
+            Papa.parse('erp_csv_data/sales_salesByRegion.csv', {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    var filteredData = results.data.filter(row => row.region);
+                    var labels = filteredData.map(row => row.region);
+                    var data = filteredData.map(row => Number(row.revenue));
+
+                    regionPieChart.data.labels = labels;
+                    regionPieChart.data.datasets[0].data = data;
+                    regionPieChart.update();
+                },
+                error: function (error) {
+                    console.error('Error fetching or parsing data:', error);
+                }
+            });
+
+            Papa.parse('erp_csv_data/sales_channelPerformance.csv', {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    var filteredData = results.data.filter(row => row.channel);
+                    var labels = filteredData.map(row => row.channel);
+                    var data = filteredData.map(row => Number(row.revenue));
+
+                    channelChart.data.labels = labels;
+                    channelChart.data.datasets[0].data = data;
+                    channelChart.update();
+                },
+                error: function (error) {
+                    console.error('Error fetching or parsing data:', error);
+                }
+            });
+
+            Papa.parse('erp_csv_data/sales_topProducts.csv', {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    var filteredData = results.data.filter(row => row.product);
+                    var labels = filteredData.map(row => row.product);
+                    var data = filteredData.map(row => Number(row.unitsSold));
+
+                    productsChart.data.labels = labels;
+                    productsChart.data.datasets[0].data = data;
+                    productsChart.update();
+                },
+                error: function (error) {
+                    console.error('Error fetching or parsing data:', error);
+                }
+            });
+
+            Papa.parse('erp_csv_data/sales_quarterlySalesTargets.csv', {
+                download: true,
+                header: true,
+                complete: function (results) {
+                    var filteredData = results.data.filter(row => row.quarter);
+                    var labels = filteredData.map(row => row.quarter);
+                    var targetData = filteredData.map(row => Number(row.target));
+                    var actualData = filteredData.map(row => Number(row.actual));
+
+                    targetChart.data.labels = labels;
+                    targetChart.data.datasets[0].data = targetData;
+                    targetChart.data.datasets[1].data = actualData;
+                    targetChart.update();
+                },
+                error: function (error) {
+                    console.error('Error fetching or parsing data:', error);
+                }
+            });
+        }
+        fetchDataAndUpdateChart();
+    </script>
+    <footer>
+        <div class="container">
+            <p>&copy; Justin Martir 2026</p>
+            <p>Created for CIS 3110. Business Intelligence Portal with JavaScript.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,86 @@
+/* Professional ERP BI Portal Stylesheet */
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #0f172a; /* Deep Navy Background */
+    color: #f1f5f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Centering wrapper for content */
+.center-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+.navbar {
+    background-color: #1e293b !important; /* Lighter Navy Navbar */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+    border-color: #38bdf8;
+}
+
+.btn-primary {
+    background-color: #38bdf8;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.btn-primary:hover {
+    background-color: #7dd3fc;
+    color: #0f172a;
+}
+
+.card-title {
+    border-bottom: 1px solid #334155;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.25rem;
+    color: #38bdf8;
+}
+
+footer {
+    background-color: #1e293b; /* Matches Navbar Navy */
+    color: #adb5bd;
+    padding: 1rem 0;
+    text-align: center;
+    border-top: 1px solid #2d2d2d;
+    margin-top: 2rem;
+}
+
+footer p {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+}
